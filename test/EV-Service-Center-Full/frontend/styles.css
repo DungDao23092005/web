@@ -1,0 +1,149 @@
+/* File: frontend/styles.css */
+
+/* --- 1. FONTS & BODY --- */
+body {
+  font-family: "Inter", sans-serif;
+  /* Đặt nền nhẹ để tạo chiều sâu */
+  background-color: #f3f4f6;
+  color: #374151; /* Màu chữ mặc định (gray-800) */
+}
+
+/* --- 2. TRANSITIONS & LAYOUT --- */
+/* Page transitions */
+.page {
+  /* THAY ĐỔI: Thêm display: none; để buộc ẩn ngay lập tức khi CSS được tải */
+  display: none;
+  animation: fadeIn 0.4s ease-out; /* Tăng tốc độ chuyển trang */
+  padding-bottom: 2rem; /* Đảm bảo có khoảng trống ở cuối trang */
+}
+.page.active {
+  display: block; /* Ghi đè: Chỉ hiện trang active */
+}
+/* Tailwind's 'hidden' class handles the initial display: none */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ... (Phần Modal styles và CUSTOM ELEMENTS & HOVERS giữ nguyên) ... */
+
+/* Modal styles (dùng flex để căn giữa) */
+.modal {
+  display: none;
+  transition: opacity 0.3s ease;
+}
+.modal.active {
+  display: flex;
+}
+/* Căn giữa nội dung Modal */
+#vehicle-modal > div,
+#battery-modal > div,
+#listing-modal > div,
+#detail-modal > div,
+#upload-modal > div {
+  max-height: 90vh; /* Giới hạn chiều cao cho modal */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* Shadow nổi bật */
+}
+
+/* --- 3. CUSTOM ELEMENTS & HOVERS --- */
+
+/* Input/Textarea Focus Consistency */
+input:focus,
+textarea:focus {
+  border-color: #4f46e5; /* indigo-600 */
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* ring-indigo-500/50 */
+}
+
+/* Nút Đăng nhập/Đăng ký trên Navbar */
+.nav-link.hover\:bg-indigo-600:hover {
+  background-color: #4f46e5;
+  color: white;
+}
+
+/* Hiệu ứng cho thẻ sản phẩm (Listing Card) */
+.bg-white.shadow-md.overflow-hidden.flex:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Shadow nổi hơn */
+}
+
+/* Tối ưu hóa hiển thị thẻ trong kho (My Assets) */
+#my-vehicles-container > div,
+#my-batteries-container > div {
+  transition: box-shadow 0.2s ease-in-out;
+  border: 1px solid #e5e7eb; /* gray-200 */
+}
+#my-vehicles-container > div:hover,
+#my-batteries-container > div:hover {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* --- 4. SCROLLBAR (Tùy chọn) --- */
+/* Custom scrollbar cho trình duyệt Webkit (Chrome, Safari) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #a1a1aa; /* gray-400 */
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #71717a; /* gray-600 */
+}
+/* --- 5. ADMIN DASHBOARD SPECIFIC STYLES --- */
+
+/* Bảng cơ bản */
+#user-list-body {
+  font-size: 0.875rem; /* text-sm */
+}
+
+/* Định dạng cho các cột trạng thái (Status/Role) */
+.p-1.rounded-full.text-xs.font-semibold {
+  min-width: 60px; /* Đảm bảo độ rộng tối thiểu cho badge */
+  text-align: center;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+/* Màu sắc của các Role/Status (Dựa trên class Tailwind trong admin_scripts.js) */
+
+/* Admin Role (nguy hiểm/cảnh báo) */
+.bg-red-100.text-red-800 {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Member Role (thành công/mặc định) */
+.bg-green-100.text-green-800 {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+/* Active Status (thông báo) */
+.bg-blue-100.text-blue-800 {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+/* Disabled/Locked Status (mờ) */
+.bg-gray-100.text-gray-800 {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+/* Nút Admin Actions Hover */
+.text-indigo-600:hover,
+.text-yellow-600:hover,
+.text-red-600:hover {
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}

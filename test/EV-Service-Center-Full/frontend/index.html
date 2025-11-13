@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EV Service Center Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="favicon.ico" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body class="bg-gray-100 text-gray-800 font-['Inter']">
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <a
+            href="#"
+            onclick="navigateTo('home')"
+            class="font-bold text-xl text-indigo-600"
+          >
+            EV-Service
+          </a>
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-4">
+              <a
+                href="#"
+                onclick="navigateTo('home')"
+                class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Trang Chủ
+              </a>
+              <a
+                href="#"
+                onclick="navigateTo('inventory-list')"
+                class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Kho Vật Tư
+              </a>
+            </div>
+          </div>
+          <div id="nav-auth-links" class="flex items-center"></div>
+        </div>
+      </div>
+    </nav>
+
+    <main id="app-container" class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <div id="home-page" class="page hidden">
+        <div class="text-center p-12 bg-white rounded-lg shadow">
+          <h1 class="text-4xl font-bold text-gray-900">
+            EV Service Center Management
+          </h1>
+          <p class="mt-4 text-lg text-gray-600">
+            Hệ thống quản lý thông tin và hồ sơ khách hàng.
+          </p>
+          <button
+            onclick="navigateTo('profile')"
+            class="mt-8 bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition duration-300"
+          >
+            Quản lý Hồ sơ
+          </button>
+        </div>
+      </div>
+
+      <div id="login-page" class="page active">
+        <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
+          <h2 class="text-2xl font-bold text-center mb-6">Đăng Nhập</h2>
+          <form id="login-form">
+            <div class="mb-4">
+              <label
+                for="login-email-username"
+                class="block text-sm font-medium text-gray-700"
+              >
+                Email hoặc Tên đăng nhập
+              </label>
+              <input
+                type="text"
+                id="login-email-username"
+                autocomplete="username"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500"
+                required
+              />
+            </div>
+            <div class="mb-6">
+              <label
+                for="login-password"
+                class="block text-sm font-medium text-gray-700"
+              >
+                Mật khẩu
+              </label>
+              <input
+                type="password"
+                id="login-password"
+                autocomplete="current-password"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500"
+                required
+              />
+              <a
+                href="#"
+                onclick="navigateTo('forget-password')"
+                class="text-indigo-600 hover:underline text-right block mt-2"
+              >
+                Quên mật khẩu?
+              </a>
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700"
+            >
+              Đăng Nhập
+            </button>
+          </form>
+          <p class="text-center mt-4 text-sm">
+            Chưa có tài khoản?
+            <a
+              href="#"
+              onclick="navigateTo('register')"
+              class="text-indigo-600 hover:underline"
+            >
+              Đăng ký ngay
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <div id="register-page" class="page hidden">
+        <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
+          <h2 class="text-2xl font-bold text-center mb-6">Đăng Ký Tài Khoản</h2>
+          <form id="register-form">
+            <div class="mb-4">
+              <label
+                for="register-username"
+                class="block text-sm font-medium text-gray-700"
+              >
+                Tên đăng nhập
+              </label>
+              <input
+                type="text"
+                id="register-username"
+                autocomplete="username"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+                required
+              />
+            </div>
+            <div class="mb-4">
+              <label
+                for="register-email"
+                class="block text-sm font-medium text-gray-700"
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                id="register-email"
+                autocomplete="email"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+                required
+              />
+            </div>
+            <div class="mb-6">
+              <label
+                for="register-password"
+                class="block text-sm font-medium text-gray-700"
+              >
+                Mật khẩu
+              </label>
+              <input
+                type="password"
+                id="register-password"
+                autocomplete="new-password"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700"
+            >
+              Đăng Ký
+            </button>
+          </form>
+          <p class="text-center mt-4 text-sm">
+            Đã có tài khoản?
+            <a
+              href="#"
+              onclick="navigateTo('login')"
+              class="text-indigo-600 hover:underline"
+            >
+              Đăng nhập
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <div id="forget-password-page" class="page hidden">
+        <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
+          <h2 class="text-2xl font-bold text-center mb-6">Quên Mật Khẩu</h2>
+          <form id="forget-password-form">
+            <div class="mb-4">
+              <label
+                for="forget-email"
+                class="block text-sm font-medium text-gray-700"
+                >Email đăng ký</label
+              >
+              <input
+                type="email"
+                id="forget-email"
+                autocomplete="email"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700"
+            >
+              Gửi Mã OTP
+            </button>
+          </form>
+
+          <form id="reset-password-form" class="mt-6 hidden">
+            <input type="hidden" id="reset-email-hidden" />
+            <div class="mb-4">
+              <label
+                for="otp-code"
+                class="block text-sm font-medium text-gray-700"
+                >Mã OTP</label
+              >
+              <input
+                type="text"
+                id="otp-code"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+                required
+              />
+            </div>
+            <div class="mb-6">
+              <label
+                for="new-password"
+                class="block text-sm font-medium text-gray-700"
+                >Mật khẩu mới</label
+              >
+              <input
+                type="password"
+                id="new-password"
+                autocomplete="new-password"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700"
+            >
+              Đặt Lại Mật Khẩu
+            </button>
+          </form>
+
+          <p class="text-center mt-4 text-sm">
+            <a
+              href="#"
+              onclick="navigateTo('login')"
+              class="text-indigo-600 hover:underline"
+            >
+              Quay lại Đăng nhập
+            </a>
+          </p>
+        </div>
+      </div>
+      <div id="profile-page" class="page hidden">
+        <h2 class="text-3xl font-bold mb-6 text-gray-900">Hồ Sơ Cá Nhân</h2>
+
+        <div
+          id="profile-details"
+          class="bg-white p-6 rounded-lg shadow-md space-y-2"
+        >
+          <p>
+            <strong>Họ và tên:</strong>
+            <span id="profile-fullname-display">bảo long</span>
+          </p>
+          <p>
+            <strong>Số điện thoại:</strong>
+            <span id="profile-phone-display">111</span>
+          </p>
+          <p>
+            <strong>Địa chỉ:</strong>
+            <span id="profile-address-display">1111</span>
+          </p>
+          <p>
+            <strong>Model xe:</strong>
+            <span id="profile-vehicle-model-display">11111</span>
+          </p>
+          <p>
+            <strong>Số VIN:</strong>
+            <span id="profile-vin-number-display">1111</span>
+          </p>
+        </div>
+
+        <div id="update-profile-button-container" class="mt-4">
+          <button
+            onclick="toggleProfileForm(true)"
+            class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition"
+          >
+            Chỉnh Sửa Hồ Sơ
+          </button>
+        </div>
+
+        <form
+          id="profile-update-form"
+          class="hidden bg-white p-6 rounded-lg shadow-md space-y-4 mt-4"
+        >
+          <input
+            class="w-full px-3 py-2 border rounded-md"
+            type="text"
+            id="profile-fullname"
+            placeholder="Họ và tên"
+          />
+          <input
+            class="w-full px-3 py-2 border rounded-md"
+            type="text"
+            id="profile-phone"
+            placeholder="Số điện thoại"
+          />
+          <input
+            class="w-full px-3 py-2 border rounded-md"
+            type="text"
+            id="profile-address"
+            placeholder="Địa chỉ"
+          />
+          <input
+            class="w-full px-3 py-2 border rounded-md"
+            type="text"
+            id="profile-vehicle-model"
+            placeholder="Model xe"
+          />
+          <input
+            class="w-full px-3 py-2 border rounded-md"
+            type="text"
+            id="profile-vin-number"
+            placeholder="Số VIN"
+          />
+
+          <div class="flex space-x-2">
+            <button
+              type="submit"
+              class="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 transition"
+            >
+              Lưu Thay Đổi
+            </button>
+            <button
+              type="button"
+              onclick="toggleProfileForm(false)"
+              class="bg-gray-300 py-2 px-4 rounded hover:bg-gray-400 transition"
+            >
+              Hủy
+            </button>
+          </div>
+        </form>
+
+        <div id="booking-history-container" class="mt-10">
+          <h3 class="text-2xl font-bold mb-4 text-gray-900">
+            Lịch Sử Đặt Lịch
+          </h3>
+          <div id="profile-booking-list" class="space-y-4">
+            <div class="bg-white p-6 rounded-lg shadow-md text-gray-500">
+              Đang tải lịch sử đặt lịch...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="booking-page" class="page hidden">
+        <h2 class="text-3xl font-bold mb-6 text-gray-900">Đặt Lịch Dịch Vụ</h2>
+
+        <div class="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+          <h3 class="text-xl font-semibold mb-4">Thông tin đặt lịch</h3>
+          <form id="booking-form" class="space-y-4">
+            <div>
+              <label
+                for="service-type"
+                class="block text-sm font-medium text-gray-700"
+                >Loại Dịch Vụ</label
+              >
+              <select
+                id="service-type"
+                class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm"
+                required
+              >
+                <option value="Bảo dưỡng định kỳ">Bảo dưỡng định kỳ</option>
+                <option value="Sửa chữa hệ thống pin">
+                  Sửa chữa hệ thống pin
+                </option>
+                <option value="Kiểm tra tổng quát">Kiểm tra tổng quát</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                for="technician-id"
+                class="block text-sm font-medium text-gray-700"
+                >Kỹ Thuật Viên (ID)</label
+              >
+              <input
+                type="number"
+                id="technician-id"
+                value="1"
+                min="1"
+                class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                for="station-id"
+                class="block text-sm font-medium text-gray-700"
+                >Trạm Dịch Vụ (ID)</label
+              >
+              <input
+                type="number"
+                id="station-id"
+                value="1"
+                min="1"
+                class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm"
+                required
+              />
+            </div>
+
+            <div class="flex space-x-4">
+              <div class="flex-1">
+                <label
+                  for="start-time"
+                  class="block text-sm font-medium text-gray-700"
+                  >Thời gian Bắt đầu</label
+                >
+                <input
+                  type="datetime-local"
+                  id="start-time"
+                  class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm"
+                  required
+                />
+              </div>
+              <div class="flex-1">
+                <label
+                  for="end-time"
+                  class="block text-sm font-medium text-gray-700"
+                  >Thời gian Kết thúc</label
+                >
+                <input
+                  type="datetime-local"
+                  id="end-time"
+                  class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm"
+                  required
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition"
+            >
+              Xác Nhận Đặt Lịch
+            </button>
+          </form>
+        </div>
+
+        <div id="my-bookings-container" class="mt-10">
+          <h3 class="text-2xl font-semibold mb-4 text-gray-800">
+            Lịch Hẹn Của Bạn
+          </h3>
+          <div id="booking-list" class="space-y-4">
+            <div class="bg-white p-6 rounded-lg shadow-md text-gray-500">
+              Đang tải lịch hẹn...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="invoice-history-page" class="page hidden">
+        <h2 class="text-3xl font-bold mb-6 text-gray-900">Lịch Sử Hóa Đơn</h2>
+
+        <ul class="flex border-b border-gray-200 mb-4">
+          <li class="-mb-px mr-1">
+            <a
+              id="tab-invoices"
+              class="bg-white inline-block py-2 px-4 text-indigo-600 font-semibold border-l border-t border-r rounded-t"
+              href="#"
+              onclick="showHistory('invoices', this)"
+              >Hóa Đơn</a
+            >
+          </li>
+          <li class="mr-1">
+            <a
+              id="tab-payments"
+              class="bg-gray-100 inline-block py-2 px-4 text-gray-500 hover:text-gray-700 font-semibold rounded-t"
+              href="#"
+              onclick="showHistory('payments', this)"
+              >Lịch Sử Giao Dịch</a
+            >
+          </li>
+        </ul>
+
+        <div id="history-content-invoices" class="history-content">
+          <div id="invoice-list-container" class="space-y-4">
+            <div class="bg-white p-6 rounded-lg shadow-md text-gray-500">
+              Đang tải lịch sử hóa đơn...
+            </div>
+          </div>
+        </div>
+
+        <div id="history-content-payments" class="history-content hidden">
+          <div id="payment-history-list-container" class="space-y-4">
+            <div class="bg-white p-6 rounded-lg shadow-md text-gray-500">
+              Đang tải lịch sử giao dịch...
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="my-tasks-page" class="page hidden">
+        <h2 class="text-3xl font-bold mb-6 text-gray-900">
+          Công Việc Bảo Trì Của Tôi
+        </h2>
+        <p class="text-gray-600 mb-6">
+          Theo dõi trạng thái các công việc bảo trì/sửa chữa xe của bạn.
+        </p>
+
+        <div id="my-tasks-list-container" class="space-y-4">
+          <div class="bg-white p-6 rounded-lg shadow-md text-gray-500">
+            Đang tải danh sách công việc...
+          </div>
+        </div>
+      </div>
+
+      <div id="inventory-list-page" class="page hidden">
+        <h2 class="text-3xl font-bold mb-6 text-gray-900">
+          Vật Tư & Phụ Tùng Hiện Có
+        </h2>
+        <p class="text-gray-600 mb-6">
+          Danh sách các phụ tùng có sẵn tại trung tâm dịch vụ.
+        </p>
+
+        <div id="inventory-list-container" class="space-y-4">
+          <div
+            class="text-center py-8 bg-white rounded-lg shadow-md"
+            id="inventory-loading-message"
+          >
+            Đang tải danh sách vật tư...
+          </div>
+        </div>
+      </div>
+    </main>
+    <div
+      id="invoice-detail-modal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-40"
+    >
+      <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl">
+        <h3 class="text-2xl font-bold mb-4 text-gray-800">
+          Chi Tiết Hóa Đơn #<span id="invoice-detail-id"></span>
+        </h3>
+        <div id="invoice-detail-content" class="space-y-3">
+          <p>
+            <strong>Ngày tạo:</strong> <span id="invoice-detail-date"></span>
+          </p>
+          <p>
+            <strong>Trạng thái:</strong>
+            <span id="invoice-detail-status" class="font-bold"></span>
+          </p>
+          <p>
+            <strong>Tổng tiền:</strong>
+            <span
+              id="invoice-detail-total"
+              class="text-xl font-bold text-red-600"
+            ></span>
+          </p>
+
+          <h4 class="text-lg font-semibold mt-4 border-t pt-3">
+            Danh sách Mục
+          </h4>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th
+                    class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                  >
+                    Mô tả
+                  </th>
+                  <th
+                    class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase"
+                  >
+                    SL
+                  </th>
+                  <th
+                    class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase"
+                  >
+                    Đơn giá
+                  </th>
+                  <th
+                    class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase"
+                  >
+                    Thành tiền
+                  </th>
+                </tr>
+              </thead>
+              <tbody
+                id="invoice-items-table-body"
+                class="bg-white divide-y divide-gray-200"
+              ></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="flex justify-end mt-6">
+          <button
+            onclick="closeInvoiceDetailModal()"
+            class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+          >
+            Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="loading-spinner"
+      class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-white"
+      ></div>
+    </div>
+
+    <div
+      id="payment-modal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50"
+    >
+      <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg">
+        <h3 class="text-2xl font-bold mb-4 text-gray-800">
+          Thanh Toán Hóa Đơn #<span id="payment-invoice-id"></span>
+        </h3>
+        <p
+          id="payment-status-message"
+          class="text-lg font-semibold mb-4 text-indigo-600"
+        >
+          Tổng tiền: <span id="payment-amount" class="text-red-600"></span>
+        </p>
+
+        <div id="payment-method-selection" class="space-y-4 mb-6">
+          <h4 class="text-xl font-bold border-b pb-2">Chọn Phương Thức</h4>
+          <div class="flex space-x-4">
+            <button
+              onclick="processPayment('bank_transfer')"
+              class="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 font-medium transition"
+            >
+              Chuyển Khoản Ngân Hàng
+            </button>
+            <button
+              onclick="processPayment('momo_qr')"
+              class="flex-1 bg-pink-500 text-white py-3 rounded-lg hover:bg-pink-600 font-medium transition"
+            >
+              Quét Mã Momo/QR
+            </button>
+          </div>
+        </div>
+
+        <div
+          id="payment-details-container"
+          class="hidden bg-gray-50 p-4 rounded-lg"
+        >
+          <h4
+            id="payment-detail-title"
+            class="text-xl font-semibold mb-3 text-indigo-700"
+          ></h4>
+          <div id="qr-code-display" class="text-center space-y-3 hidden">
+            <img
+              id="qr-image"
+              class="w-40 h-40 mx-auto border"
+              src="https://via.placeholder.com/150?text=QR+Code"
+              alt="QR Code"
+            />
+            <p class="text-sm font-mono text-gray-700">
+              Nội dung CK: <strong id="payment-note-qr"></strong>
+            </p>
+          </div>
+          <div id="bank-info-display" class="space-y-2 hidden">
+            <p><strong>Ngân hàng:</strong> <span id="bank-name"></span></p>
+            <p>
+              <strong>Tên tài khoản:</strong> <span id="account-name"></span>
+            </p>
+            <p>
+              <strong>Số tài khoản:</strong> <span id="account-number"></span>
+            </p>
+            <p>
+              <strong>Số tiền:</strong>
+              <span id="amount-bank" class="font-bold text-red-600"></span>
+            </p>
+            <p class="text-sm font-mono text-gray-700">
+              Nội dung CK: <strong id="payment-note-bank"></strong>
+            </p>
+          </div>
+
+          <p class="text-center text-sm text-red-500 mt-4">
+            Mã Giao Dịch TEST:
+            <strong id="test-code-display" class="font-bold"></strong>
+          </p>
+
+          <button
+            onclick="simulatePaymentSuccess()"
+            id="simulate-success-btn"
+            class="mt-4 w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 font-medium transition"
+          >
+            [MOCK] Mô phỏng Thanh toán Thành công
+          </button>
+        </div>
+
+        <div class="flex justify-end mt-6">
+          <button
+            onclick="closePaymentModal()"
+            class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+          >
+            Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="scripts.js"></script>
+  </body>
+</html>

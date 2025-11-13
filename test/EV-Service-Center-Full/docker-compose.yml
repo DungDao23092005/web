@@ -1,0 +1,356 @@
+services:
+  # ===================== DATABASE (Postgres) =====================
+  db-user:
+    image: postgres:14-alpine
+    container_name: user_db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5433:5432"
+    volumes:
+      - user_data:/var/lib/postgresql/data
+    networks:
+      - ev_network  # ✅ ĐÚNG
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db-inventory:
+    image: postgres:14-alpine
+    container_name: inventory_db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=ev_inventory_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - inventory_data:/var/lib/postgresql/data
+    networks:
+      - ev_network  # ✅ ĐÚNG
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ev_inventory_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db-booking:
+    image: postgres:14-alpine
+    container_name: booking_db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=ev_booking_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - booking_data:/var/lib/postgresql/data
+    networks:
+      - ev_network  # ✅ ĐÚNG
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ev_booking_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db-finance:
+    image: postgres:13
+    container_name: db-finance
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: finance_user
+      POSTGRES_PASSWORD: finance_password
+      POSTGRES_DB: finance_db
+    ports:
+      - "5436:5432"
+    volumes:
+      - finance_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finance_user -d finance_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ev_network  # ✅ ĐÚNG
+
+  db-maintenance:
+    image: postgres:14-alpine
+    container_name: maintenance_db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=ev_maintenance_db
+    ports:
+      - "5437:5432"
+    volumes:
+      - maintenance_data:/var/lib/postgresql/data
+    networks:
+      - ev_network  # ✅ ĐÚNG
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ev_maintenance_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db-payment:
+    image: postgres:14-alpine
+    container_name: payment_db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=ev_payment_db
+    ports:
+      - "5438:5432"
+    volumes:
+      - payment_data:/var/lib/postgresql/data
+    networks:
+      - ev_network  # ✅ ĐÚNG
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ev_payment_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ✅ SỬA: DB NOTIFICATION
+  db-notification:
+    image: postgres:15
+    container_name: db-notification
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=ev_notification_db
+    ports:
+      - "5439:5432"  
+    volumes:
+      - notification_data:/var/lib/postgresql/data
+    networks:
+      - ev_network  
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ev_notification_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ===================== REDIS CACHE =====================
+  redis:
+    image: redis:alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    networks:
+      - ev_network  
+
+  # ===================== USER SERVICE =====================
+  user-service:
+    build: ./services/user-service
+    container_name: user-service
+    command: gunicorn --bind 0.0.0.0:5000 "app:create_app()"
+    volumes:
+      - ./services/user-service:/app
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@user_db:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://${REDIS_HOST}:6379
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    expose:
+      - "5000"
+    depends_on:
+      db-user:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - ev_network  
+
+  # ===================== INVENTORY SERVICE =====================
+  inventory-service:
+    build: ./services/inventory-service
+    container_name: inventory-service
+    command: gunicorn --bind 0.0.0.0:8000 "app:create_app()"
+    volumes:
+      - ./services/inventory-service:/app
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db-inventory:5432/ev_inventory_db
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    expose:
+      - "8000"
+    depends_on:
+      db-inventory:
+        condition: service_healthy
+    networks:
+      - ev_network  
+
+  # ===================== BOOKING SERVICE =====================
+  booking-service:
+    build: ./services/booking-service
+    container_name: booking-service
+    command: gunicorn --bind 0.0.0.0:8001 "app:create_app()"
+    volumes:
+      - ./services/booking-service:/app
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db-booking:5432/ev_booking_db
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+      - USER_SERVICE_URL=http://user-service:5000
+    expose:
+      - "8001"
+    depends_on:
+      db-booking:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+    networks:
+      - ev_network  
+
+  # ===================== FINANCE SERVICE =====================
+  finance-service:
+    build:
+      context: .
+      dockerfile: services/finance-service/Dockerfile
+    container_name: finance-serviced
+    command: gunicorn --bind 0.0.0.0:8002 "app:create_app()"
+    volumes:
+      - ./services/finance-service:/app
+    environment:
+      - DATABASE_URL=postgresql://finance_user:finance_password@db-finance:5432/finance_db
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+      - BOOKING_SERVICE_URL=http://booking-service:8001
+      - INVENTORY_SERVICE_URL=http://inventory-service:8000
+      - PAYMENT_SERVICE_URL=http://payment-service:8004
+    expose:
+      - "8002"
+    depends_on:
+      db-finance:
+        condition: service_healthy
+      booking-service:
+        condition: service_started
+      inventory-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+    networks:
+      - ev_network  
+
+  # ===================== MAINTENANCE SERVICE =====================
+  maintenance-service:
+    build: ./services/maintenance-service
+    container_name: maintenance-service
+    command: gunicorn --bind 0.0.0.0:8003 "app:create_app()"
+    volumes:
+      - ./services/maintenance-service:/app
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db-maintenance:5432/ev_maintenance_db
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+      - BOOKING_SERVICE_URL=http://booking-service:8001
+      - USER_SERVICE_URL=http://user-service:5000
+    expose:
+      - "8003"
+    depends_on:
+      db-maintenance:
+        condition: service_healthy
+      booking-service:
+        condition: service_started
+      user-service:
+        condition: service_started
+    networks:
+      - ev_network  
+
+  # ===================== PAYMENT SERVICE =====================
+  payment-service:
+    build: ./services/payment-service
+    container_name: payment-service
+    command: gunicorn --bind 0.0.0.0:8004 "app:create_app()"
+    volumes:
+      - ./services/payment-service:/app
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db-payment:5432/ev_payment_db
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+      - FINANCE_SERVICE_URL=http://finance-service:8002
+    expose:
+      - "8004"
+    depends_on:
+      db-payment:
+        condition: service_healthy
+    networks:
+      - ev_network  
+
+  # ===================== NOTIFICATION SERVICE =====================
+  
+  notification-service:
+    build: ./services/notification-service
+    container_name: notification-service
+    command: gunicorn --bind 0.0.0.0:8005 "app:create_app()"
+    volumes:
+      - ./services/notification-service:/app
+    environment:
+      
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db-notification:5432/ev_notification_db
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+      # Optional: Redis cho caching
+      - REDIS_HOST=redis_cache
+      - REDIS_PORT=6379
+    expose:
+      - "8005"
+    depends_on:
+      db-notification:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - ev_network  
+    restart: unless-stopped
+
+  # ===================== FRONTEND SERVICE =====================
+  frontend:
+    build: ./frontend
+    container_name: frontend_server
+    expose:
+      - "80"
+    networks:
+      - ev_network  
+
+  # ===================== API GATEWAY (NGINX) =====================
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
+    container_name: api_gateway
+    ports:
+      - "8080:80"
+    depends_on:
+      - user-service
+      - frontend
+      - inventory-service
+      - booking-service
+      - finance-service
+      - maintenance-service
+      - payment-service
+      - notification-service
+    networks:
+      - ev_network  
+
+# ===================== NETWORKS & VOLUMES =====================
+networks:
+  ev_network:  # 
+    driver: bridge
+
+volumes:
+  user_data:
+  inventory_data:
+  booking_data:
+  finance_data:
+  maintenance_data:
+  payment_data:
+  notification_data:  #   

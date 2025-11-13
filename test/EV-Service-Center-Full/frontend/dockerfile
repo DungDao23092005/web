@@ -1,0 +1,6 @@
+FROM nginx:stable-alpine
+COPY index.html /usr/share/nginx/html/
+COPY admin.html /usr/share/nginx/html/
+COPY styles.css /usr/share/nginx/html/
+COPY scripts.js /usr/share/nginx/html/
+COPY admin_scripts.js /usr/share/nginx/html/
