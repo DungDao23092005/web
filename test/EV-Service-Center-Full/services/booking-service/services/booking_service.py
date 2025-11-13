@@ -178,15 +178,6 @@ class BookingService:
             print(f"Failed to send notification: {e}")
             return False
     
-    @staticmethod
-    def create_booking(data):
-        # ... existing booking creation code ...
-        
-        # After successful booking creation
-        if booking:
-            BookingService._send_booking_notification(booking)
-        
-        return booking, None
 
 # Hàm gửi thông báo khi tạo booking thành công
 
@@ -255,15 +246,6 @@ class BookingService:
             related_entity_id=booking.id
         )
     
-    @staticmethod
-    def create_booking(data):
-        # ... existing booking creation code ...
-        
-        # ✅ THÊM: Gửi notification sau khi tạo thành công
-        if Booking:
-            BookingService._notify_booking_created(Booking)
-        
-        return Booking, None
     
     @staticmethod
     def update_booking_status(booking_id, new_status):

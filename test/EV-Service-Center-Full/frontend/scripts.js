@@ -1,5 +1,5 @@
 // --- GLOBAL CONFIG ---
-const API_BASE_URL = "http://localhost"; // nếu chạy qua nginx gateway, để trống là đúng
+const API_BASE_URL = ""; // nếu chạy qua nginx gateway, để trống là đúng
 const TOKEN_KEY = "jwt_token";
 const ADMIN_TOKEN_KEY = "admin_jwt_token";
 let currentUserId = null;
