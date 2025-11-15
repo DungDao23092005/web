@@ -117,7 +117,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ✅ SỬA: DB NOTIFICATION
+  # ✅ SỬA: DB NOTIFICATION (Chỉ giữ lại một khối)
   db-notification:
     image: postgres:15
     container_name: db-notification
@@ -138,7 +138,28 @@ services:
       retries: 5
     restart: unless-stopped
 
+  # ✅ SỬA: DB-REPORT (Đã sửa thụt lề)
+  db-report:
+    image: postgres:14-alpine
+    container_name: report_db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=ev_report_db
+    ports:
+      - "5440:5432" # Port mới 5440
+    volumes:
+      - report_data:/var/lib/postgresql/data
+    networks:
+      - ev_network  
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ev_report_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   # ===================== REDIS CACHE =====================
+  # ✅ SỬA: Đã sửa thụt lề
   redis:
     image: redis:alpine
     container_name: redis_cache
@@ -148,6 +169,7 @@ services:
       - ev_network  
 
   # ===================== USER SERVICE =====================
+  # ✅ SỬA: Đã sửa thụt lề
   user-service:
     build: ./services/user-service
     container_name: user-service
@@ -170,6 +192,7 @@ services:
       - ev_network  
 
   # ===================== INVENTORY SERVICE =====================
+  # ✅ SỬA: Đã sửa thụt lề
   inventory-service:
     build: ./services/inventory-service
     container_name: inventory-service
@@ -189,6 +212,7 @@ services:
       - ev_network  
 
   # ===================== BOOKING SERVICE =====================
+  # ✅ SỬA: Đã sửa thụt lề
   booking-service:
     build: ./services/booking-service
     container_name: booking-service
@@ -211,6 +235,7 @@ services:
       - ev_network  
 
   # ===================== FINANCE SERVICE =====================
+  # ✅ SỬA: Đã sửa thụt lề
   finance-service:
     build:
       context: .
@@ -241,6 +266,7 @@ services:
       - ev_network  
 
   # ===================== MAINTENANCE SERVICE =====================
+  # ✅ SỬA: Đã sửa thụt lề
   maintenance-service:
     build: ./services/maintenance-service
     container_name: maintenance-service
@@ -266,6 +292,7 @@ services:
       - ev_network  
 
   # ===================== PAYMENT SERVICE =====================
+  # ✅ SỬA: Đã sửa thụt lề
   payment-service:
     build: ./services/payment-service
     container_name: payment-service
@@ -286,7 +313,7 @@ services:
       - ev_network  
 
   # ===================== NOTIFICATION SERVICE =====================
-  
+  # ✅ SỬA: Đã sửa thụt lề
   notification-service:
     build: ./services/notification-service
     container_name: notification-service
@@ -312,7 +339,41 @@ services:
       - ev_network  
     restart: unless-stopped
 
+  # ✅ SỬA: Đã sửa thụt lề
+  report-service:
+    build: ./services/report-service
+    container_name: report-service
+    command: gunicorn --bind 0.0.0.0:8006 "app:create_app()"
+    volumes:
+      - ./services/report-service:/app
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db-report:5432/ev_report_db
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+      # Thêm URL của các service MÀ NÓ CẦN GỌI
+      - USER_SERVICE_URL=http://user-service:5000
+      - BOOKING_SERVICE_URL=http://booking-service:8001
+      - FINANCE_SERVICE_URL=http://finance-service:8002
+      - MAINTENANCE_SERVICE_URL=http://maintenance-service:8003
+      - INVENTORY_SERVICE_URL=http://inventory-service:8000
+    expose:
+      - "8006" # Port mới 8006
+    depends_on:
+      db-report:
+        condition: service_healthy
+      # Phụ thuộc vào các service mà nó lấy dữ liệu
+      user-service:
+        condition: service_started
+      finance-service:
+        condition: service_started
+      booking-service:
+        condition: service_started
+    networks:
+      - ev_network
+
+
   # ===================== FRONTEND SERVICE =====================
+  # ✅ SỬA: Đã sửa thụt lề
   frontend:
     build: ./frontend
     container_name: frontend_server
@@ -322,6 +383,7 @@ services:
       - ev_network  
 
   # ===================== API GATEWAY (NGINX) =====================
+  # ✅ SỬA: Đã sửa thụt lề
   api-gateway:
     build:
       context: .
@@ -338,10 +400,12 @@ services:
       - maintenance-service
       - payment-service
       - notification-service
+      - report-service
     networks:
       - ev_network  
 
 # ===================== NETWORKS & VOLUMES =====================
+# ✅ SỬA: Đưa networks và volumes về cấp gốc (0 thụt lề)
 networks:
   ev_network:  # 
     driver: bridge
@@ -353,4 +417,5 @@ volumes:
   finance_data:
   maintenance_data:
   payment_data:
-  notification_data:  #   
+  notification_data:
+  report_data:

@@ -37,11 +37,10 @@ def create_app():
     jwt.init_app(app)
     migrate.init_app(app, db, directory='migrations', version_table='alembic_version_report')
 
-    # ===== IMPORT MODELS (NHƯNG KHÔNG CHẠY create_all) =====
-    # Chúng ta import model ở đây để Flask-Migrate có thể "thấy" chúng
+    # ===== IMPORT MODELS & TẠO TABLES =====
     with app.app_context():
         from models.report_model import Report 
-        # db.create_all() # <-- ĐÃ XÓA DÒNG NÀY
+        db.create_all()
 
     # ===== ĐĂNG KÝ BLUEPRINTS (Controllers) =====
     from controllers.report_controller import report_bp
