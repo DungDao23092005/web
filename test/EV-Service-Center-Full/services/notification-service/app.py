@@ -1,4 +1,4 @@
-# File: services/report-service/app.py
+# File: services/notification-service/app.py
 import os
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -15,7 +15,7 @@ migrate = Migrate()
 jwt = JWTManager() 
 
 def create_app():
-    """Tạo và cấu hình Flask app chính cho Report Service"""
+    """Tạo và cấu hình Flask app chính cho Notification Service"""
     app = Flask(__name__)
     CORS(app)
 
@@ -25,31 +25,30 @@ def create_app():
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     app.config["INTERNAL_SERVICE_TOKEN"] = os.getenv("INTERNAL_SERVICE_TOKEN")
     
-    # Lấy URL của các service khác
-    app.config["USER_SERVICE_URL"] = os.getenv("USER_SERVICE_URL")
-    app.config["BOOKING_SERVICE_URL"] = os.getenv("BOOKING_SERVICE_URL")
-    app.config["FINANCE_SERVICE_URL"] = os.getenv("FINANCE_SERVICE_URL")
-    app.config["MAINTENANCE_SERVICE_URL"] = os.getenv("MAINTENANCE_SERVICE_URL")
-    app.config["INVENTORY_SERVICE_URL"] = os.getenv("INVENTORY_SERVICE_URL")
-    
     # ===== KHỞI TẠO EXTENSIONS =====
     db.init_app(app)
     jwt.init_app(app)
-    migrate.init_app(app, db, directory='migrations', version_table='alembic_version_report')
+    # Sửa: trỏ đúng version_table cho notification
+    migrate.init_app(app, db, directory='migrations', version_table='alembic_version_notification')
 
-    # ===== IMPORT MODELS (NHƯNG KHÔNG CHẠY create_all) =====
-    # Chúng ta import model ở đây để Flask-Migrate có thể "thấy" chúng
+    # ===== IMPORT MODELS & TẠO TABLES =====
     with app.app_context():
-        from models.report_model import Report 
-        # db.create_all() # <-- ĐÃ XÓA DÒNG NÀY
+        # Sửa: import đúng model
+        from models.notification_model import Notification 
+        db.create_all()
 
     # ===== ĐĂNG KÝ BLUEPRINTS (Controllers) =====
-    from controllers.report_controller import report_bp
-    app.register_blueprint(report_bp) 
+    # Sửa: import đúng controllers
+    from controllers.notification_controller import notification_bp
+    from controllers.internal_controller import internal_bp
+    
+    app.register_blueprint(notification_bp) 
+    app.register_blueprint(internal_bp)
 
     # ===== HEALTH CHECK =====
     @app.route("/health", methods=["GET"])
     def health_check():
-        return jsonify({"status": "Report Service is running!"}), 200
+        # Sửa: trả về đúng tên service
+        return jsonify({"status": "Notification Service is running!"}), 200
 
     return app
